@@ -1,61 +1,84 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
-import axios from 'axios';
+import { useNavigate, useParams } from 'react-router-dom';
+// import { useQuery, useMutation, useQueryClient } from 'react-query';
+// import axios from 'axios';
+// import { url } from '../MainPage';
+// import { Bootcamp } from '../../models/Bootcamp';
+import { useDeleteBootcampMutation, useGetBootcampByIdQuery } from '../../api/bootcampApi';
+import { skipToken } from '@reduxjs/toolkit/query';
 
-interface Bootcamp {
-  id: string;
-  name: string;
-}
 
 const BootcampPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const queryClient = useQueryClient();
+  const { bootcampId } = useParams<{ bootcampId: string }>();
 
-  const { data, isLoading, error } = useQuery<Bootcamp>(['bootcamp', id], async () => {
-    
-    const response = await new Promise<{ data: Bootcamp }>((resolve) => {
-        setTimeout(() => {
-          resolve({
-            data: { id: '1', name: 'Bootcamp 1' }
-          });
-        }, 1000);
-      });
-    // const response = await axios.get(`/api/bootcamps/${id}`, { withCredentials: true });
-    return response.data;
-  });
+  const navigate = useNavigate();
 
-  const mutation = useMutation(
-    (updatedData: Partial<Bootcamp>) => axios.put(`/api/bootcamps/${id}`, updatedData, { withCredentials: true }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['bootcamp', id]);
-      },
-    }
-  );
+  const {
+    data,
+    isLoading,
+    error
+  } = useGetBootcampByIdQuery(bootcampId ?? skipToken);
+
+  const [deleteBootcamp, { isLoading: isDeleting }] = useDeleteBootcampMutation();
+  // const queryClient = useQueryClient();
+
+  // async function fetchData(id?: string) {
+  //   if (!id) {
+  //     throw new Error('Id not found!');
+  //   }
+  //   const response = await new Promise<{ data: Bootcamp }>((resolve) => {
+  //   //   setTimeout(() => {
+  //   //       console.log(id);
+  //   //       resolve({
+  //   //         data: { id: '1', name: 'Bootcamp 1' }
+  //   //       });
+  //   //     }, 1000);
+  //   //   });
+  //   const response = await axios.get(`${url}/${id}`, { withCredentials: true });
+  //   return response.data.data;
+  // }
+
+  // const { data, isLoading, error } = useQuery<Bootcamp>(['bootcamp', id], () => fetchData(id));
+
+  // const mutation = useMutation(
+  //   (updatedData: Partial<Bootcamp>) => axios.put(`${url}/${id}`, updatedData, { withCredentials: true }),
+  //   {
+  //     onSuccess: () => {
+  //       queryClient.invalidateQueries(['bootcamp', id]);
+  //     },
+  //   }
+  // );
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error loading bootcamp</p>;
+  if (!data) return <p>No data</p>;
 
   const handleUpdate = () => {
-    mutation.mutate({ name: 'Updated Bootcamp Name' });
+    // mutation.mutate({ name: 'Updated Bootcamp Name' });
   };
 
   const handleDelete = async () => {
-    await new Promise<void>((resolve) => {
-      setTimeout(() => {
-        console.log('Deleted');
-        resolve();
-      }, 1000);
-    });
-    // await axios.delete(`/api/bootcamps/${id}`, { withCredentials: true })
-  }
+    if (!bootcampId) { return; }
+    await deleteBootcamp(bootcampId);
+    navigate("/bootcamps");
+  };
+
+  // const handleDelete = async () => {
+  //   await new Promise<void>((resolve) => {
+  //     setTimeout(() => {
+  //       console.log('Deleted');
+  //       resolve();
+  //     }, 1000);
+  //   });
+  //   // await axios.delete(`/api/bootcamps/${id}`, { withCredentials: true })
+  // }
 
   return (
     <div>
-      <h1>{data?.name}</h1>
+      <h2>{data?.data.name}</h2>
+      <p>{ data?.data.description }</p>
       <button onClick={handleUpdate}>Update</button>
-      <button onClick={handleDelete}>Delete</button>
+      <button disabled={isDeleting} onClick={handleDelete}>Delete</button>
     </div>
   );
 }

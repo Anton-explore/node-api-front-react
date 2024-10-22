@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 // import axios from 'axios';
 
 const Header: React.FC = () => {
+  const { type } = useParams<{ type?: string }>();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -13,11 +14,13 @@ const Header: React.FC = () => {
 
   return (
     <header>
-      <nav>
-        <Link to="/">Bootcamps</Link>
-        <Link to="/courses">Courses</Link>
-        <button onClick={handleLogout}>Logout</button>
-      </nav>
+      {type !== 'login' && type !== 'signup' &&
+        (<nav>
+          <Link to="/">Bootcamps</Link>
+          <Link to="/courses">Courses</Link>
+          <button onClick={handleLogout}>Logout</button>
+        </nav>)
+      }
     </header>
   );
 }

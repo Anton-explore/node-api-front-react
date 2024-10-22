@@ -1,37 +1,46 @@
-import React from 'react';
-import { useQuery } from 'react-query';
+import React, { useState } from 'react';
+import { useGetCoursesQuery } from '../../api/coursesApi';
+import { Link } from 'react-router-dom';
+// import { useQuery } from 'react-query';
 // import axios from 'axios';
 
-interface Course {
-  id: string;
-  name: string;
-}
+
 
 const CoursesPage: React.FC = () => {
-  const { data, isLoading, error } = useQuery<Course[]>('courses', async () => {
-    const response = await new Promise<{ data: Course[] }>((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: [
-            { id: '1', name: 'Course 1' },
-            { id: '2', name: 'Course 2' }
-          ]
-        });
-      }, 1000);
-    });
-    // const response = await axios.get('/api/courses', { withCredentials: true });
-    return response.data;
-  });
+
+  const [page] = useState(1);
+  const [limit] = useState(25);
+  const [sort] = useState<string | undefined>(undefined);
+
+  const {
+    data,
+    isLoading,
+    error
+  } = useGetCoursesQuery({ page, limit, sort});
+
+  // async function fetchData() {
+  //   const response = await axios.get('https://node-api-courses.onrender.com/api/v1/courses', { withCredentials: true });
+  //   console.log(response.data.data);
+  //   return response.data.data;
+  // }
+
+  // const { data, isLoading, error } = useQuery<Course[]>('courses', fetchData);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error loading courses</p>;
+  if (!data) return <p>No data</p>;
 
   return (
     <div>
       <h1>Courses</h1>
       <ul>
-        {data?.map((course) => (
-          <li key={course.id}>{course.name}</li>
+        {data?.data.map((course) => (
+          <li key={course._id}>
+            <Link to={`/courses/${course._id}`}>
+              <h3>{course.title}</h3>
+            </Link>
+            <p>{course.description}</p>
+          </li>
         ))}
       </ul>
     </div>
