@@ -10,6 +10,8 @@ import Footer from './components/Footer';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import LoginPage from './pages/LoginPage/LoginPage';
 import CoursePage from './pages/Courses/CoursePage';
+import ReviewsPage from './pages/Reviews/ReviewsPage';
+import AddReviewPage from './pages/Reviews/AddReviewPage';
 
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ function App() {
           <Route path="/bootcamps/:bootcampId" element={<BootcampPage />} />
           <Route path="/courses" element={<CoursesPage />} />
           <Route path="/courses/:courseId" element={<CoursePage />} />
+          <Route path="/reviews/:bootcampId" element={<ReviewsPage />} />
+          <Route path="/reviews/add-review/:bootcampId" element={<AddReviewPage />} />
         </Routes>
         <Footer />
       </Router>

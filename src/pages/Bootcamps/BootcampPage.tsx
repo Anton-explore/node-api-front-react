@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 // import { useQuery, useMutation, useQueryClient } from 'react-query';
 // import axios from 'axios';
@@ -6,6 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 // import { Bootcamp } from '../../models/Bootcamp';
 import { useDeleteBootcampMutation, useGetBootcampByIdQuery } from '../../api/bootcampApi';
 import { skipToken } from '@reduxjs/toolkit/query';
+// import BootcampView from '../../components/Bootcamp/BootcampView';
+import BootcampView2 from '../../components/Bootcamp/Bootcamp';
 
 
 const BootcampPage: React.FC = () => {
@@ -19,7 +21,35 @@ const BootcampPage: React.FC = () => {
     error
   } = useGetBootcampByIdQuery(bootcampId ?? skipToken);
 
-  const [deleteBootcamp, { isLoading: isDeleting }] = useDeleteBootcampMutation();
+  const [deleteBootcamp, { isLoading: isDeleting, error: deleteError }] = useDeleteBootcampMutation();
+
+  const slug = data?.data?.slug;
+
+  useEffect(() => {
+    if (slug && bootcampId !== slug) {
+      window.history.replaceState(null, "", `/bootcamps/${slug}`);
+      // navigate(`/bootcamps/${slug}`, { replace: true });
+    }
+  }, [bootcampId, slug]);
+
+  const handleUpdate = useCallback(() => {
+    if (!bootcampId) {
+      console.error('Such bootcamp is missing');
+      return;
+    }
+    console.log(bootcampId);
+    // mutation.mutate({ name: 'Updated Bootcamp Name' });
+  }, [bootcampId]);
+
+  const handleDelete = useCallback(async () => {
+    if (!bootcampId) {
+      console.error('Such bootcamp is missing');
+      return;
+    }
+    await deleteBootcamp(bootcampId);
+    if (!deleteError) navigate("/bootcamps");
+  }, [bootcampId, deleteError, deleteBootcamp, navigate]);
+  
   // const queryClient = useQueryClient();
 
   // async function fetchData(id?: string) {
@@ -53,16 +83,6 @@ const BootcampPage: React.FC = () => {
   if (error) return <p>Error loading bootcamp</p>;
   if (!data) return <p>No data</p>;
 
-  const handleUpdate = () => {
-    // mutation.mutate({ name: 'Updated Bootcamp Name' });
-  };
-
-  const handleDelete = async () => {
-    if (!bootcampId) { return; }
-    await deleteBootcamp(bootcampId);
-    navigate("/bootcamps");
-  };
-
   // const handleDelete = async () => {
   //   await new Promise<void>((resolve) => {
   //     setTimeout(() => {
@@ -75,10 +95,15 @@ const BootcampPage: React.FC = () => {
 
   return (
     <div>
-      <h2>{data?.data.name}</h2>
-      <p>{ data?.data.description }</p>
-      <button onClick={handleUpdate}>Update</button>
-      <button disabled={isDeleting} onClick={handleDelete}>Delete</button>
+      <div className='app-flex'>
+        {bootcampId &&
+          <BootcampView2
+            data={data?.data}
+            isDeleting={isDeleting}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+          />}
+      </div>
     </div>
   );
 }

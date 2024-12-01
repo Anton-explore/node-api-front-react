@@ -1,3 +1,4 @@
+import { Bootcamp } from "./Bootcamp";
 
 export interface ICoursesResp {
   count: number;
@@ -15,6 +16,11 @@ export interface Course {
   _id: string;
   title: string;
   description: string;
-  bootcamp: string;
+  createdAt: string;
+  minimumSkill: string;
+  scholarshipAvailable: boolean;
+  tuition: number;
+  weeks: number;
+  bootcamp: Partial<Bootcamp>;
   user: string
 }

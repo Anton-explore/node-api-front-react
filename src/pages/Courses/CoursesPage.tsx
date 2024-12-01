@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useGetCoursesQuery } from '../../api/coursesApi';
-import { Link } from 'react-router-dom';
+import CourseView from '../../components/Course/CourseView';
 // import { useQuery } from 'react-query';
 // import axios from 'axios';
 
@@ -33,14 +33,17 @@ const CoursesPage: React.FC = () => {
   return (
     <div>
       <h1>Courses</h1>
-      <ul>
+      <ul className='row g-3'>
         {data?.data.map((course) => (
           <li key={course._id}>
-            <Link to={`/courses/${course._id}`}>
-              <h3>{course.title}</h3>
-            </Link>
-            <p>{course.description}</p>
+            <CourseView course={course} />
           </li>
+          // <li key={course._id}>
+          //   <Link to={`/courses/${course._id}`}>
+          //     <h3>{course.title}</h3>
+          //   </Link>
+          //   <p>{course.description}</p>
+          // </li>
         ))}
       </ul>
     </div>
